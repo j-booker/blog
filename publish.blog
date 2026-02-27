@@ -4,7 +4,7 @@ set -e
 BLOG_DIR="$HOME/blog"
 
 if [ -z "$1" ]; then
-    echo "Usage: ./publish.sh /path/to/your/note.md"
+    echo "Usage: publish.blog /path/to/your/note.md"
     exit 1
 fi
 

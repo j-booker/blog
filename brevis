@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+if [ $# -eq 0 ]; then
+  echo "Usage: brevis Your short post here"
+  exit 1
+fi
+
+MESSAGE="$*"
+SLUG=$(date +"%Y%m%d-%H%M%S")
+DATETIME=$(date +"%Y-%m-%dT%H:%M:%S%z")
+FILE="content/brevis/${SLUG}.md"
+BLOG_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+cd "$BLOG_DIR"
+
+cat > "$FILE" << EOF
+---
+date: ${DATETIME}
+---
+${MESSAGE}
+EOF
+
+hugo
+
+COMMIT_MSG="Brevis: ${MESSAGE:0:50}"
+git add -A
+git commit -m "$COMMIT_MSG"
+git push
+
+echo "Published: ${MESSAGE}"

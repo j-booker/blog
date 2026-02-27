@@ -1,6 +1,6 @@
 #!/bin/bash
-# delete.sh — Remove a post from your blog
-# Usage: ./delete.sh (then pick from a list)
+# delete.blog — Remove a post from your blog
+# Usage: delete.blog (then pick from a list)
 
 set -e
 BLOG_DIR="$HOME/blog"
