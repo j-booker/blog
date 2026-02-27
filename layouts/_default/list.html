@@ -11,7 +11,7 @@
 
 {{ range (where .Site.RegularPages "Section" "posts").ByDate.Reverse }}
 <div class="post-item">
-  <div class="post-head">{{ .Date.Format "January 2, 2006" }} — <a href="{{ .Permalink }}">{{ .Title }}</a></div>
+  <div class="post-head"><a href="{{ .Permalink }}">{{ .Date.Format "January 2, 2006" }} — {{ .Title }}</a></div>
   <div class="post-excerpt">{{ .Summary }}</div>
 </div>
 {{ end }}
