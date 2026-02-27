@@ -34,7 +34,7 @@ SUMMARY=$(echo "$BODY" | head -c 250 | sed 's/\(.\{150,\}\)\..*/\1./' | tr '\n' 
 mkdir -p "$BLOG_DIR/static/images"
 
 # Handle Obsidian-style embeds: ![[image.ext]]
-OBSIDIAN_IMAGES=$(echo "$BODY" | sed -n 's/.*!\[\[\([^]]*\.\(png\|jpg\|jpeg\|gif\|webp\)\)\]\].*/\1/p' || true)
+OBSIDIAN_IMAGES=$(echo "$BODY" | grep -oE '!\[\[[^]]+\.(png|jpg|jpeg|gif|webp)\]\]' | sed 's/!\[\[//;s/\]\]//' || true)
 
 for IMG in $OBSIDIAN_IMAGES; do
     IMG_BASENAME=$(basename "$IMG")
@@ -58,7 +58,7 @@ for IMG in $OBSIDIAN_IMAGES; do
 done
 
 # Handle standard markdown images: ![alt](path)
-STD_IMAGES=$(echo "$BODY" | sed -n 's/.*!\[.*\](\([^)]*\.\(png\|jpg\|jpeg\|gif\|webp\)\)).*/\1/p' || true)
+STD_IMAGES=$(echo "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp)\)' | sed 's/.*](\(.*\))/\1/' || true)
 
 for IMG in $STD_IMAGES; do
     case "$IMG" in
