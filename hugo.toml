@@ -4,7 +4,7 @@ title = "Blog"
 paginate = 50
 
 [params]
-  bio = "Short bio or description of the blog. One or two sentences about what you write about and why."
+  bio = "Jonathan Booker"
 
 [markup.goldmark.renderer]
   unsafe = true
