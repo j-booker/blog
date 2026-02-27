@@ -9,7 +9,7 @@
   </nav>
 </header>
 
-{{ range where .Site.RegularPages "Section" "posts" | sort ".Date" "desc" }}
+{{ range (where .Site.RegularPages "Section" "posts").ByDate.Reverse }}
 <div class="post-item">
   <div class="post-head">{{ .Date.Format "January 2, 2006" }} — <a href="{{ .RelPermalink }}">{{ .Title }}</a></div>
   <div class="post-excerpt">{{ .Summary }}</div>
