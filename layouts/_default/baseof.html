@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} — {{ .Site.Title }}{{ end }}</title>
+<link rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" href="{{ "index.xml" | absURL }}">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #2d3a2e;
+    --text: #e8eae5;
+    --hover: #a8b5a0;
+  }
+
+  :root.light {
+    --bg: #ffffff;
+    --text: #000000;
+    --hover: #555555;
+  }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: auto;
+  }
+
+  .site {
+    max-width: 720px;
+    padding: 2.5rem 2rem 5rem;
+  }
+
+  .site-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .site-bio {
+    font-size: 1.22rem;
+    line-height: 1.55;
+    word-spacing: 0.08em;
+    margin-bottom: 2rem;
+  }
+
+  .site-nav a {
+    font-size: 0.92rem;
+    color: var(--text);
+    margin-right: 1.2rem;
+    line-height: 1.5;
+  }
+
+  .site-nav a:hover {
+    color: var(--hover);
+  }
+
+  .post-item {
+    margin-bottom: 1.8rem;
+  }
+
+  .post-head {
+    font-size: 1.22rem;
+    line-height: 1.3;
+    word-spacing: 0.08em;
+  }
+
+  .post-head a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .post-head a:hover {
+    color: var(--hover);
+  }
+
+  .post-excerpt {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-top: 0;
+  }
+
+  .post-single-head {
+    font-size: 1.22rem;
+    line-height: 1.3;
+    word-spacing: 0.08em;
+    margin-bottom: 1.8rem;
+  }
+
+  .post-body {
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .post-body p {
+    margin-bottom: 1rem;
+  }
+
+  .post-body img {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+  }
+
+  .post-body blockquote {
+    margin: 1.2rem 0;
+    padding-left: 1.2rem;
+    border-left: 1px solid var(--text);
+  }
+
+  .post-body a {
+    color: var(--text);
+  }
+
+  .post-body a:hover {
+    color: var(--hover);
+  }
+
+  .post-back {
+    margin-top: 2rem;
+    font-size: 0.92rem;
+  }
+
+  .post-back a {
+    color: var(--text);
+  }
+
+  .theme-toggle {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    padding: 0.4rem 0.9rem;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  @media (max-width: 600px) {
+    .site { padding: 1.5rem 1.2rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="site">
+  {{ block "main" . }}{{ end }}
+</div>
+
+<button class="theme-toggle" onclick="toggleTheme()">light</button>
+
+<script>
+  if (localStorage.getItem('theme') === 'light') {
+    document.documentElement.classList.add('light');
+    document.querySelector('.theme-toggle').textContent = 'dark';
+  }
+
+  function toggleTheme() {
+    const root = document.documentElement;
+    const btn = document.querySelector('.theme-toggle');
+    root.classList.toggle('light');
+    const isLight = root.classList.contains('light');
+    btn.textContent = isLight ? 'dark' : 'light';
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  }
+</script>
+
+</body>
+</html>

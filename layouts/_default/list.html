@@ -1,0 +1,19 @@
+{{ define "main" }}
+
+<header class="site-header">
+  <p class="site-bio">{{ .Site.Params.bio }}</p>
+  <nav class="site-nav">
+    <a href="{{ "/" | relURL }}">archive</a>
+    <a href="{{ "/about/" | relURL }}">about</a>
+    <a href="{{ "index.xml" | absURL }}">rss</a>
+  </nav>
+</header>
+
+{{ range .Site.RegularPages.ByDate.Reverse }}
+<div class="post-item">
+  <div class="post-head">{{ .Date.Format "January 2, 2006" }} — <a href="{{ .RelPermalink }}">{{ .Title }}</a></div>
+  <div class="post-excerpt">{{ .Summary }}</div>
+</div>
+{{ end }}
+
+{{ end }}
