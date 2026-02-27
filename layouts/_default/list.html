@@ -3,15 +3,15 @@
 <header class="site-header">
   <p class="site-bio">{{ .Site.Params.bio }}</p>
   <nav class="site-nav">
-    <a href="{{ "/" | absURL }}">archive</a>
-    <a href="{{ "/about/" | absURL }}">about</a>
-    <a href="{{ "index.xml" | absURL }}">rss</a>
+    <a href="{{ .Site.BaseURL }}">archive</a>
+    <a href="{{ .Site.BaseURL }}about/">about</a>
+    <a href="{{ .Site.BaseURL }}index.xml">rss</a>
   </nav>
 </header>
 
 {{ range (where .Site.RegularPages "Section" "posts").ByDate.Reverse }}
 <div class="post-item">
-  <div class="post-head">{{ .Date.Format "January 2, 2006" }} — <a href="{{ .RelPermalink }}">{{ .Title }}</a></div>
+  <div class="post-head">{{ .Date.Format "January 2, 2006" }} — <a href="{{ .Permalink }}">{{ .Title }}</a></div>
   <div class="post-excerpt">{{ .Summary }}</div>
 </div>
 {{ end }}
