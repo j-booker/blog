@@ -1,7 +1,7 @@
 {{ define "main" }}
 
 <header class="site-header">
-  <p class="site-bio">{{ .Site.Params.bio }}</p>
+  <p class="site-bio"><a href="{{ .Site.BaseURL }}">{{ .Site.Params.bio }}</a></p>
   <nav class="site-nav">
     <a href="{{ .Site.BaseURL }}">archive</a>
     <a href="{{ .Site.BaseURL }}about/">about</a>
@@ -11,8 +11,15 @@
 
 {{ range (where .Site.RegularPages "Section" "posts").ByDate.Reverse }}
 <div class="post-item">
-  <div class="post-head"><a href="{{ .Permalink }}">{{ .Date.Format "January 2, 2006" }} — {{ .Title }}</a></div>
-  <div class="post-excerpt">{{ .Summary }}</div>
+  <div class="post-item-text">
+    <div class="post-head"><a href="{{ .Permalink }}">{{ .Date.Format "January 2, 2006" }} — {{ .Title }}</a></div>
+    <div class="post-excerpt">{{ .Summary }}</div>
+  </div>
+  {{ $imgs := findRE `<img[^>]+src="([^"]+)"` .Content 1 }}
+  {{ if $imgs }}
+    {{ $src := replaceRE `.*src="([^"]+)".*` "$1" (index $imgs 0) }}
+    <img class="post-thumb" src="{{ $src }}" alt="">
+  {{ end }}
 </div>
 {{ end }}
 

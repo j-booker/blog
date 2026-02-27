@@ -1,5 +1,9 @@
 {{ define "main" }}
 
+<header class="site-header">
+  <p class="site-bio"><a href="{{ .Site.BaseURL }}">{{ .Site.Params.bio }}</a></p>
+</header>
+
 <article>
   <div class="post-single-head">{{ .Date.Format "January 2, 2006" }} — {{ .Title }}</div>
   <div class="post-body">

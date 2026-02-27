@@ -12,38 +12,54 @@
     --bg: #2d3a2e;
     --text: #e8eae5;
     --hover: #a8b5a0;
+    --border-bg: #324b37;
   }
 
   :root.light {
     --bg: #ffffff;
     --text: #000000;
     --hover: #555555;
+    --border-bg: #fffffc;
   }
 
   body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #324b37 url('{{ "images/shley-tree-1.png" | absURL }}') repeat;
+    background: var(--border-bg) url('{{ "images/shley-tree-1.png" | absURL }}') repeat;
     color: var(--text);
     -webkit-font-smoothing: auto;
   }
 
   .site {
-    max-width: 720px;
+    max-width: 828px;
     margin: 0 auto;
-    padding: 2.5rem 2rem 5rem;
+    padding: 0 2rem 5rem;
     background: var(--bg);
     min-height: 100vh;
   }
 
   .site-header {
-    margin-bottom: 2.5rem;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 1.5rem 0;
+    margin-bottom: 1.2rem;
+    z-index: 10;
+  }
+
+  .site-bio a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .site-bio a:hover {
+    color: var(--hover);
   }
 
   .site-bio {
     font-size: 1.22rem;
     line-height: 1.55;
     word-spacing: 0.08em;
-    margin-bottom: 2rem;
+    margin-bottom: 1.2rem;
   }
 
   .site-nav a {
@@ -59,6 +75,23 @@
 
   .post-item {
     margin-bottom: 1.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .post-item-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .post-thumb {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
   }
 
   .post-head {
@@ -141,7 +174,7 @@
   }
 
   @media (max-width: 600px) {
-    .site { padding: 1.5rem 1.2rem 3rem; }
+    .site { padding: 0 1.2rem 3rem; }
   }
 </style>
 </head>
