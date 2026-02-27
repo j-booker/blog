@@ -54,7 +54,7 @@ for IMG in $OBSIDIAN_IMAGES; do
         echo "Warning: Image not found: $IMG"
     fi
 
-    BODY=$(echo "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/images/$IMG_BASENAME)|g")
+    BODY=$(echo "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/blog/images/$IMG_BASENAME)|g")
 done
 
 # Handle standard markdown images: ![alt](path)
@@ -62,7 +62,7 @@ STD_IMAGES=$(echo "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp)
 
 for IMG in $STD_IMAGES; do
     case "$IMG" in
-        http://*|https://*|/images/*) continue ;;
+        http://*|https://*|/blog/images/*) continue ;;
     esac
     IMG_BASENAME=$(basename "$IMG")
     if [ -f "$SOURCE_DIR/$IMG" ]; then
@@ -74,7 +74,7 @@ for IMG in $STD_IMAGES; do
     else
         echo "Warning: Image not found: $IMG"
     fi
-    BODY=$(echo "$BODY" | sed "s|$IMG|/images/$IMG_BASENAME|g")
+    BODY=$(echo "$BODY" | sed "s|$IMG|/blog/images/$IMG_BASENAME|g")
 done
 
 POST_PATH="$BLOG_DIR/content/posts/$SLUG.md"
