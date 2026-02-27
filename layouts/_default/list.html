@@ -3,8 +3,8 @@
 <header class="site-header">
   <p class="site-bio">{{ .Site.Params.bio }}</p>
   <nav class="site-nav">
-    <a href="{{ "/" | relURL }}">archive</a>
-    <a href="{{ "/about/" | relURL }}">about</a>
+    <a href="{{ "/" | absURL }}">archive</a>
+    <a href="{{ "/about/" | absURL }}">about</a>
     <a href="{{ "index.xml" | absURL }}">rss</a>
   </nav>
 </header>
