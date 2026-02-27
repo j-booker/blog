@@ -1,10 +1,10 @@
-baseURL = "https://yourdomain.com/"
+baseURL = "https://j-booker.github.io/blog/"
 languageCode = "en-us"
 title = "Blog"
 paginate = 50
 
 [params]
-  bio = "Jonathan Booker"
+  bio = "Short bio or description of the blog. One or two sentences about what you write about and why."
 
 [markup.goldmark.renderer]
   unsafe = true
