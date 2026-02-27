@@ -12,8 +12,8 @@
 
 {{ range .Pages.ByDate.Reverse }}
 <div class="brevis-item">
-  <div class="brevis-time"><a href="{{ .Permalink }}">{{ .Date.Format "Jan 2, 2006 3:04 PM" }}</a></div>
   <div class="brevis-text">{{ .Content }}</div>
+  <div class="brevis-time"><a href="{{ .Permalink }}">{{ .Date.Format "Jan 2, 2006 3:04 PM" }}</a></div>
 </div>
 {{ end }}
 
