@@ -29,7 +29,7 @@ SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 
 DATE=$(date +%Y-%m-%d)
 
 BODY=$(tail -n +2 "$SOURCE_FILE" | sed '/./,$!d')
-SUMMARY=$(echo "$BODY" | head -c 250 | sed 's/\(.\{150,\}\)\..*/\1./' | tr '\n' ' ' | sed 's/  */ /g')
+SUMMARY=$(echo "$BODY" | sed 's/!\[\[[^]]*\]\]//g' | sed 's/!\[[^]]*\]([^)]*)//g' | tr '\n' ' ' | sed 's/  */ /g' | head -c 250 | sed 's/\(.\{150,\}\)\..*/\1./')
 
 mkdir -p "$BLOG_DIR/static/images"
 
@@ -74,7 +74,7 @@ for IMG in $STD_IMAGES; do
     else
         echo "Warning: Image not found: $IMG"
     fi
-    BODY=$(echo "$BODY" | sed "s|$IMG|/blog/images/$IMG_BASENAME|g")
+    BODY=$(echo "$BODY" | sed "s|$IMG|/images/$IMG_BASENAME|g")
 done
 
 POST_PATH="$BLOG_DIR/content/posts/$SLUG.md"
