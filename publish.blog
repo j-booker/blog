@@ -81,7 +81,7 @@ fi
 echo "Title: $TITLE"
 
 SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//')
-DATE=$(date +%Y-%m-%d)
+DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
 
 BODY=$(tail -n +2 "$SOURCE_FILE" | sed '/./,$!d')
 SUMMARY=$(echo "$BODY" | sed 's/!\[\[[^]]*\]\]//g' | sed 's/!\[[^]]*\]([^)]*)//g' | tr '\n' ' ' | sed 's/  */ /g' | head -c 250 | sed 's/\(.\{150,\}\)\..*/\1./')
