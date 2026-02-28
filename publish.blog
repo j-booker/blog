@@ -54,7 +54,7 @@ for IMG in $OBSIDIAN_IMAGES; do
         echo "Warning: Image not found: $IMG"
     fi
 
-    BODY=$(echo "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/blog/images/$IMG_BASENAME)|g")
+    BODY=$(echo "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/images/$IMG_BASENAME)|g")
 done
 
 # Handle standard markdown images: ![alt](path)

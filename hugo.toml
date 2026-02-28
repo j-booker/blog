@@ -1,4 +1,4 @@
-baseURL = "https://j-booker.github.io/blog/"
+baseURL = "https://jon.rest/"
 languageCode = "en-us"
 title = "Blog"
 paginate = 50
