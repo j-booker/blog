@@ -155,17 +155,8 @@ else
             echo "  $((i+1)). ${ITEMS[$i]}"
         done
 
-        if [ ${#SELECTED_FILES[@]} -gt 0 ]; then
-            echo ""
-            echo "  Selected: ${#SELECTED_FILES[@]} file(s)"
-        fi
-
         echo ""
-        read -p "Pick (comma-separated, or 'done' to publish selected): " INPUT
-
-        if [ "$INPUT" = "done" ] && [ ${#SELECTED_FILES[@]} -gt 0 ]; then
-            break
-        fi
+        read -p "Pick: " INPUT
 
         # Split comma-separated input
         IFS=',' read -ra NUMS <<< "$INPUT"
@@ -190,9 +181,13 @@ else
                 break
             else
                 SELECTED_FILES+=("$CURRENT/$PICK")
-                echo "  + $PICK"
             fi
         done
+
+        # If any files were selected and input wasn't a folder/back, publish
+        if [ ${#SELECTED_FILES[@]} -gt 0 ] && [[ ! "$PICK" == */ ]] && [ "$PICK" != "back" ]; then
+            break
+        fi
     done
 
     TITLES=()
