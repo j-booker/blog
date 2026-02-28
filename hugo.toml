@@ -1,6 +1,6 @@
 baseURL = "https://jon.rest/"
 languageCode = "en-us"
-title = "Blog"
+title = "jon.rest"
 paginate = 50
 
 [params]
