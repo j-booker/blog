@@ -89,7 +89,7 @@ SUMMARY=$(echo "$BODY" | sed 's/!\[\[[^]]*\]\]//g' | sed 's/!\[[^]]*\]([^)]*)//g
 mkdir -p "$BLOG_DIR/static/images"
 
 # Handle Obsidian-style embeds: ![[image.ext]]
-OBSIDIAN_IMAGES=$(echo "$BODY" | grep -oE '!\[\[[^]]+\.(png|jpg|jpeg|gif|webp)\]\]' | sed 's/!\[\[//;s/\]\]//' || true)
+OBSIDIAN_IMAGES=$(echo "$BODY" | grep -oE '!\[\[[^]]+\.(png|jpg|jpeg|gif|webp|heic)\]\]' | sed 's/!\[\[//;s/\]\]//' || true)
 
 for IMG in $OBSIDIAN_IMAGES; do
     IMG_BASENAME=$(basename "$IMG")
@@ -107,6 +107,15 @@ for IMG in $OBSIDIAN_IMAGES; do
         echo "Copied image: $IMG_BASENAME"
     fi
 
+    # Convert HEIC to JPEG
+    if [[ "$IMG_BASENAME" =~ \.[Hh][Ee][Ii][Cc]$ ]] && [ "$FOUND" -eq 1 ]; then
+        JPEG_NAME="${IMG_BASENAME%.*}.jpeg"
+        sips -s format jpeg "$BLOG_DIR/static/images/$IMG_BASENAME" --out "$BLOG_DIR/static/images/$JPEG_NAME" >/dev/null 2>&1
+        rm "$BLOG_DIR/static/images/$IMG_BASENAME"
+        IMG_BASENAME="$JPEG_NAME"
+        echo "Converted to JPEG: $JPEG_NAME"
+    fi
+
     if [ "$FOUND" -eq 0 ]; then
         echo "Warning: Image not found: $IMG"
     fi
@@ -115,7 +124,7 @@ for IMG in $OBSIDIAN_IMAGES; do
 done
 
 # Handle standard markdown images: ![alt](path)
-STD_IMAGES=$(echo "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp)\)' | sed 's/.*](\(.*\))/\1/' || true)
+STD_IMAGES=$(echo "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp|heic)\)' | sed 's/.*](\(.*\))/\1/' || true)
 
 for IMG in $STD_IMAGES; do
     case "$IMG" in
@@ -123,17 +132,29 @@ for IMG in $STD_IMAGES; do
     esac
     IMG_BASENAME=$(basename "$IMG")
     FOUND_IMG=$(find "$WORDS_DIR" -name "$IMG_BASENAME" -print -quit 2>/dev/null)
+    FOUND_STD=0
     if [ -n "$FOUND_IMG" ]; then
         cp "$FOUND_IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+        FOUND_STD=1
         echo "Copied image: $IMG_BASENAME"
     elif [ -f "$SOURCE_DIR/$IMG" ]; then
         cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+        FOUND_STD=1
         echo "Copied image: $IMG_BASENAME"
     elif [ -f "$IMG" ]; then
         cp "$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+        FOUND_STD=1
         echo "Copied image: $IMG_BASENAME"
     else
         echo "Warning: Image not found: $IMG"
+    fi
+    # Convert HEIC to JPEG
+    if [[ "$IMG_BASENAME" =~ \.[Hh][Ee][Ii][Cc]$ ]] && [ "$FOUND_STD" -eq 1 ]; then
+        JPEG_NAME="${IMG_BASENAME%.*}.jpeg"
+        sips -s format jpeg "$BLOG_DIR/static/images/$IMG_BASENAME" --out "$BLOG_DIR/static/images/$JPEG_NAME" >/dev/null 2>&1
+        rm "$BLOG_DIR/static/images/$IMG_BASENAME"
+        IMG_BASENAME="$JPEG_NAME"
+        echo "Converted to JPEG: $JPEG_NAME"
     fi
     BODY=$(echo "$BODY" | sed "s|$IMG|/images/$IMG_BASENAME|g")
 done
