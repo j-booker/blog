@@ -2,13 +2,68 @@
 set -e
 
 BLOG_DIR="$HOME/blog"
+WORDS_DIR="$HOME/Desktop/Words"
 
-if [ -z "$1" ]; then
-    echo "Usage: publish.blog /path/to/your/note.md"
-    exit 1
+# If a file path is passed directly, publish it
+if [ -n "$1" ]; then
+    SOURCE_FILE="$1"
+else
+    # Browse for a file starting at Words
+    CURRENT="$WORDS_DIR"
+    while true; do
+        echo ""
+        echo "  $CURRENT"
+        echo ""
+
+        ITEMS=()
+        ITEMS+=("quit")
+        if [ "$CURRENT" != "$WORDS_DIR" ]; then
+            ITEMS+=("back")
+        fi
+
+        # Collect folders then .md files
+        for f in "$CURRENT"/*/; do
+            [ -d "$f" ] || continue
+            ITEMS+=("$(basename "$f")/")
+        done
+        for f in "$CURRENT"/*.md; do
+            [ -f "$f" ] || continue
+            ITEMS+=("$(basename "$f")")
+        done
+
+        if [ ${#ITEMS[@]} -eq 0 ]; then
+            echo "  No folders or .md files here."
+            exit 0
+        fi
+
+        for i in "${!ITEMS[@]}"; do
+            echo "  $((i+1)). ${ITEMS[$i]}"
+        done
+
+        echo ""
+        read -p "Pick: " NUM
+
+        if ! [[ "$NUM" =~ ^[0-9]+$ ]] || [ "$NUM" -lt 1 ] || [ "$NUM" -gt ${#ITEMS[@]} ]; then
+            echo "Invalid selection."
+            continue
+        fi
+
+        PICK="${ITEMS[$((NUM-1))]}"
+
+        if [ "$PICK" = "quit" ]; then
+            echo "Cancelled."
+            exit 0
+        elif [ "$PICK" = "back" ]; then
+            CURRENT="$(dirname "$CURRENT")"
+        elif [[ "$PICK" == */ ]]; then
+            CURRENT="$CURRENT/${PICK%/}"
+        else
+            SOURCE_FILE="$CURRENT/$PICK"
+            break
+        fi
+    done
 fi
 
-SOURCE_FILE="$1"
 SOURCE_DIR="$(dirname "$SOURCE_FILE")"
 
 if [ ! -f "$SOURCE_FILE" ]; then
@@ -40,12 +95,14 @@ for IMG in $OBSIDIAN_IMAGES; do
     IMG_BASENAME=$(basename "$IMG")
     FOUND=0
 
-    if [ -f "$SOURCE_DIR/$IMG" ]; then
-        cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+    # Search all of Words for the image
+    FOUND_IMG=$(find "$WORDS_DIR" -name "$IMG_BASENAME" -print -quit 2>/dev/null)
+    if [ -n "$FOUND_IMG" ]; then
+        cp "$FOUND_IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
         FOUND=1
         echo "Copied image: $IMG_BASENAME"
-    elif [ -f "$SOURCE_DIR/attachments/$IMG" ]; then
-        cp "$SOURCE_DIR/attachments/$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+    elif [ -f "$SOURCE_DIR/$IMG" ]; then
+        cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
         FOUND=1
         echo "Copied image: $IMG_BASENAME"
     fi
@@ -62,10 +119,14 @@ STD_IMAGES=$(echo "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp)
 
 for IMG in $STD_IMAGES; do
     case "$IMG" in
-        http://*|https://*|/blog/images/*) continue ;;
+        http://*|https://*|/images/*) continue ;;
     esac
     IMG_BASENAME=$(basename "$IMG")
-    if [ -f "$SOURCE_DIR/$IMG" ]; then
+    FOUND_IMG=$(find "$WORDS_DIR" -name "$IMG_BASENAME" -print -quit 2>/dev/null)
+    if [ -n "$FOUND_IMG" ]; then
+        cp "$FOUND_IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+        echo "Copied image: $IMG_BASENAME"
+    elif [ -f "$SOURCE_DIR/$IMG" ]; then
         cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
         echo "Copied image: $IMG_BASENAME"
     elif [ -f "$IMG" ]; then
