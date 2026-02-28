@@ -2,6 +2,7 @@
 # watch.blog — Auto-publish .md files dropped into ~/Desktop/Words/jonrest/
 # Runs via launchd every 30 seconds
 
+export PATH="/opt/homebrew/bin:$PATH"
 BLOG_DIR="$HOME/blog"
 WATCH_DIR="$HOME/Desktop/Words/jonrest"
 WORDS_DIR="$HOME/Desktop/Words"

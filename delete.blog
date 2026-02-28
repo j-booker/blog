@@ -47,6 +47,12 @@ FILENAME=$(echo "$ENTRY" | awk '{print $2}')
 
 if [ "$TYPE" = "post" ]; then
     rm "$POSTS_DIR/$FILENAME"
+    # Remove from watch.blog's published tracker so it can be re-dropped
+    PUBLISHED="$HOME/Desktop/Words/jonrest/.published"
+    if [ -f "$PUBLISHED" ]; then
+        grep -vxF "$FILENAME" "$PUBLISHED" > "$PUBLISHED.tmp" 2>/dev/null || true
+        mv "$PUBLISHED.tmp" "$PUBLISHED"
+    fi
 elif [ "$TYPE" = "brevis" ]; then
     rm "$BREVIS_DIR/$FILENAME"
 fi
