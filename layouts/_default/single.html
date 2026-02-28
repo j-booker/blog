@@ -5,7 +5,8 @@
 </header>
 
 <article>
-  <div class="post-single-head">{{ .Date.Format "January 2, 2006" }} — {{ .Title }}</div>
+  <div class="post-single-head">{{ .Title }}</div>
+  <div class="post-single-date">{{ .Date.Format "January 2, 2006 3:04 PM" }}</div>
   <div class="post-body">
     {{ .Content }}
   </div>
