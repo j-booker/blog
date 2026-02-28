@@ -1,6 +1,6 @@
 #!/bin/bash
-# delete.blog — Remove a post or brevis from your blog
-# Usage: delete.blog (then pick from a list)
+# delete.blog — Remove posts or brevis from your blog
+# Usage: delete.blog (then pick from a list, comma-separated)
 
 set -e
 BLOG_DIR="$HOME/blog"
@@ -34,32 +34,41 @@ for i in "${!FILES[@]}"; do
 done
 
 echo ""
-read -p "Number to delete: " NUM
+read -p "Number(s) to delete (comma-separated): " INPUT
 
-if ! [[ "$NUM" =~ ^[0-9]+$ ]] || [ "$NUM" -lt 1 ] || [ "$NUM" -gt ${#FILES[@]} ]; then
-    echo "Invalid selection."
-    exit 1
-fi
+DELETED=()
+IFS=',' read -ra NUMS <<< "$INPUT"
+for NUM in "${NUMS[@]}"; do
+    NUM=$(echo "$NUM" | tr -d ' ')
 
-ENTRY="${FILES[$((NUM-1))]}"
-TYPE=$(echo "$ENTRY" | awk '{print $1}')
-FILENAME=$(echo "$ENTRY" | awk '{print $2}')
-
-if [ "$TYPE" = "post" ]; then
-    rm "$POSTS_DIR/$FILENAME"
-    # Remove from watch.blog's published tracker so it can be re-dropped
-    PUBLISHED="$HOME/Desktop/Words/jonrest/.published"
-    if [ -f "$PUBLISHED" ]; then
-        grep -vxF "$FILENAME" "$PUBLISHED" > "$PUBLISHED.tmp" 2>/dev/null || true
-        mv "$PUBLISHED.tmp" "$PUBLISHED"
+    if ! [[ "$NUM" =~ ^[0-9]+$ ]] || [ "$NUM" -lt 1 ] || [ "$NUM" -gt ${#FILES[@]} ]; then
+        echo "Invalid: $NUM"
+        continue
     fi
-elif [ "$TYPE" = "brevis" ]; then
-    rm "$BREVIS_DIR/$FILENAME"
+
+    ENTRY="${FILES[$((NUM-1))]}"
+    TYPE=$(echo "$ENTRY" | awk '{print $1}')
+    FILENAME=$(echo "$ENTRY" | awk '{print $2}')
+
+    if [ "$TYPE" = "post" ]; then
+        rm "$POSTS_DIR/$FILENAME"
+        echo "Deleted: $FILENAME"
+    elif [ "$TYPE" = "brevis" ]; then
+        rm "$BREVIS_DIR/$FILENAME"
+        echo "Deleted: $FILENAME"
+    fi
+
+    DELETED+=("$FILENAME")
+done
+
+if [ ${#DELETED[@]} -eq 0 ]; then
+    echo "Nothing deleted."
+    exit 0
 fi
 
 cd "$BLOG_DIR"
 hugo
 git add -A
-git commit -m "Delete: $FILENAME"
+git commit -m "Delete: $(IFS=', '; echo "${DELETED[*]}")"
 git push
 echo "Deleted and deployed."
