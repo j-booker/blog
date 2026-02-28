@@ -34,7 +34,12 @@ for i in "${!FILES[@]}"; do
 done
 
 echo ""
-read -p "Number(s) to delete (comma-separated): " INPUT
+read -p "Number(s) to delete (q to quit): " INPUT
+
+if [ "$INPUT" = "q" ]; then
+    echo "Cancelled."
+    exit 0
+fi
 
 DELETED=()
 IFS=',' read -ra NUMS <<< "$INPUT"

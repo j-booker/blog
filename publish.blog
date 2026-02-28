@@ -131,7 +131,6 @@ else
         echo ""
 
         ITEMS=()
-        ITEMS+=("quit")
         if [ "$CURRENT" != "$WORDS_DIR" ]; then
             ITEMS+=("back")
         fi
@@ -156,7 +155,12 @@ else
         done
 
         echo ""
-        read -p "Pick: " INPUT
+        read -p "Pick (q to quit): " INPUT
+
+        if [ "$INPUT" = "q" ]; then
+            echo "Cancelled."
+            exit 0
+        fi
 
         # Split comma-separated input
         IFS=',' read -ra NUMS <<< "$INPUT"
@@ -170,10 +174,7 @@ else
 
             PICK="${ITEMS[$((NUM-1))]}"
 
-            if [ "$PICK" = "quit" ]; then
-                echo "Cancelled."
-                exit 0
-            elif [ "$PICK" = "back" ]; then
+            if [ "$PICK" = "back" ]; then
                 CURRENT="$(dirname "$CURRENT")"
                 break
             elif [[ "$PICK" == */ ]]; then
