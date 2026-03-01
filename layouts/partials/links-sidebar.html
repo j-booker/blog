@@ -4,9 +4,9 @@
   {{ range $links }}
   <div class="links-item">
     <a class="links-title" href="{{ .Params.link }}" target="_blank" rel="noopener">{{ .Title }}</a>
-    <div class="links-time"><a href="{{ .Permalink }}">{{ .Date.Format "Jan 2, 2006" }}</a></div>
+    <div class="links-time">{{ .Date.Format "Jan 2, 2006" }}</div>
     {{ if .Content }}
-    <div class="links-comment">{{ .Content | plainify | truncate 80 }}</div>
+    <div class="links-comment"><a href="{{ .Permalink }}">{{ .Content | plainify | truncate 80 }}</a></div>
     {{ end }}
   </div>
   {{ end }}

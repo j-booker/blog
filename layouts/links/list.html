@@ -3,9 +3,9 @@
 {{ range .Pages.ByDate.Reverse }}
 <div class="links-list-item">
   <a class="links-list-title" href="{{ .Params.link }}" target="_blank" rel="noopener">{{ .Title }}</a>
-  <div class="links-list-time"><a href="{{ .Permalink }}">{{ .Date.Format "Jan 2, 2006 3:04 PM" }}</a></div>
+  <div class="links-list-time">{{ .Date.Format "Jan 2, 2006 3:04 PM" }}</div>
   {{ if .Content }}
-  <div class="links-list-comment">{{ .Content }}</div>
+  <div class="links-list-comment"><a href="{{ .Permalink }}">{{ .Content }}</a></div>
   {{ end }}
 </div>
 {{ end }}
