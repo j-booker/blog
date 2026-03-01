@@ -1,7 +1,7 @@
 {{ define "main" }}
 
 <article>
-  <div class="links-single-head"><a href="{{ .Params.link }}" target="_blank" rel="noopener">{{ .Title }}</a></div>
+  <div class="links-single-head">{{ .Title }}</div>
   <div class="post-single-date">{{ .Date.Format "January 2, 2006 3:04 PM" }}</div>
   {{ if .Content }}
   <div class="post-body">{{ .Content }}</div>

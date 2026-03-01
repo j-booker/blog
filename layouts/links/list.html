@@ -2,10 +2,10 @@
 
 {{ range .Pages.ByDate.Reverse }}
 <div class="links-list-item">
-  <a class="links-list-title" href="{{ .Params.link }}" target="_blank" rel="noopener">{{ .Title }}</a>
+  <a class="links-list-title" href="{{ .Permalink }}">{{ .Title }}</a> <a class="links-list-extlink" href="{{ .Params.link }}" target="_blank" rel="noopener">(link)</a>
   <div class="links-list-time">{{ .Date.Format "Jan 2, 2006 3:04 PM" }}</div>
   {{ if .Content }}
-  <div class="links-list-comment"><a href="{{ .Permalink }}">{{ .Content }}</a></div>
+  <div class="links-list-comment">{{ .Content }}</div>
   {{ end }}
 </div>
 {{ end }}

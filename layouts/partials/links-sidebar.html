@@ -3,10 +3,10 @@
 <aside class="site-links">
   {{ range $links }}
   <div class="links-item">
-    <a class="links-title" href="{{ .Params.link }}" target="_blank" rel="noopener">{{ .Title }}</a>
+    <a class="links-title" href="{{ .Permalink }}">{{ .Title }}</a> <a class="links-extlink" href="{{ .Params.link }}" target="_blank" rel="noopener">(link)</a>
     <div class="links-time">{{ .Date.Format "Jan 2, 2006" }}</div>
     {{ if .Content }}
-    <div class="links-comment"><a href="{{ .Permalink }}">{{ .Content | plainify | truncate 80 }}</a></div>
+    <div class="links-comment">{{ .Content | plainify | truncate 80 }}</div>
     {{ end }}
   </div>
   {{ end }}
