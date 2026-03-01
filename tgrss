@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Scrape public Telegram channels and write RSS feeds."""
+
+import re
+import sys
+import html
+import os
+from datetime import datetime
+from urllib.request import urlopen, Request
+
+CHANNELS = ["OSINTdefender", "Auroraintel"]
+OUT_DIR = os.path.expanduser("~/.config/newsboat/tgrss")
+
+
+def strip_html(s):
+    s = re.sub(r"<br\s*/?>", "\n", s)
+    s = re.sub(r"<[^>]+>", "", s)
+    return html.unescape(s).strip()
+
+
+def fetch_channel(channel):
+    req = Request(
+        f"https://t.me/s/{channel}",
+        headers={"User-Agent": "Mozilla/5.0"},
+    )
+    with urlopen(req, timeout=15) as resp:
+        return resp.read().decode("utf-8", errors="replace")
+
+
+def parse_messages(page, channel):
+    posts = re.findall(r'data-post="([^"]+)"', page)
+    texts = re.findall(
+        r'class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', page, re.DOTALL
+    )
+    dates = re.findall(
+        r'class="tgme_widget_message_date"[^>]*>[^<]*<time[^>]*datetime="([^"]+)"',
+        page,
+        re.DOTALL,
+    )
+
+    items = []
+    for i in range(min(len(posts), len(texts), len(dates))):
+        post_id = posts[i].split("/")[-1]
+        link = f"https://t.me/{channel}/{post_id}"
+        body = texts[i]
+        title = strip_html(body)[:120]
+        if len(strip_html(body)) > 120:
+            title += "..."
+        items.append(
+            {
+                "title": title,
+                "link": link,
+                "date": dates[i],
+                "description": body,
+            }
+        )
+    return items
+
+
+def write_rss(channel, items, out_dir):
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, f"{channel}.xml")
+
+    esc = lambda s: (
+        s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    )
+
+    rss = '<?xml version="1.0" encoding="utf-8"?>\n'
+    rss += '<rss version="2.0">\n<channel>\n'
+    rss += f"  <title>{esc(channel)}</title>\n"
+    rss += f"  <link>https://t.me/s/{channel}</link>\n"
+    rss += f"  <description>Telegram: {esc(channel)}</description>\n"
+
+    for item in items:
+        rss += "  <item>\n"
+        rss += f"    <title>{esc(item['title'])}</title>\n"
+        rss += f"    <link>{esc(item['link'])}</link>\n"
+        rss += f"    <guid>{esc(item['link'])}</guid>\n"
+        rss += f"    <pubDate>{esc(item['date'])}</pubDate>\n"
+        rss += f"    <description>{esc(item['description'])}</description>\n"
+        rss += "  </item>\n"
+
+    rss += "</channel>\n</rss>\n"
+
+    with open(path, "w") as f:
+        f.write(rss)
+    print(f"  {channel}: {len(items)} items -> {path}")
+
+
+def main():
+    channels = sys.argv[1:] if len(sys.argv) > 1 else CHANNELS
+    for ch in channels:
+        try:
+            page = fetch_channel(ch)
+            items = parse_messages(page, ch)
+            write_rss(ch, items, OUT_DIR)
+        except Exception as e:
+            print(f"  {ch}: error — {e}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()
