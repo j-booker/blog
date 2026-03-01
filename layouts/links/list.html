@@ -1,0 +1,13 @@
+{{ define "main" }}
+
+{{ range .Pages.ByDate.Reverse }}
+<div class="links-list-item">
+  <a class="links-list-title" href="{{ .Params.link }}" target="_blank" rel="noopener">{{ .Title }}</a>
+  <div class="links-list-time"><a href="{{ .Permalink }}">{{ .Date.Format "Jan 2, 2006 3:04 PM" }}</a></div>
+  {{ if .Content }}
+  <div class="links-list-comment">{{ .Content }}</div>
+  {{ end }}
+</div>
+{{ end }}
+
+{{ end }}

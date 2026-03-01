@@ -1,15 +1,5 @@
 {{ define "main" }}
 
-<header class="site-header">
-  <p class="site-bio"><a href="{{ .Site.BaseURL }}">{{ .Site.Params.bio }}</a></p>
-  <nav class="site-nav">
-    <a href="{{ .Site.BaseURL }}">archive</a>
-    <a href="{{ .Site.BaseURL }}brevis/">brevis</a>
-    <a href="{{ .Site.BaseURL }}about/">about</a>
-    <a href="{{ .Site.BaseURL }}index.xml">rss</a>
-  </nav>
-</header>
-
 {{ range (where .Site.RegularPages "Section" "posts").ByDate.Reverse }}
 <div class="post-item">
   <div class="post-item-text">

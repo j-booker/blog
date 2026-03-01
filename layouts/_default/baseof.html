@@ -29,20 +29,128 @@
     -webkit-font-smoothing: auto;
   }
 
-  .site {
-    max-width: 745px;
+  :root.light body {
+    background: var(--border-bg);
+  }
+
+  .site-outer {
+    width: fit-content;
     margin: 2.5rem auto 0;
-    padding: 0 2rem 5rem;
     background: var(--bg);
     min-height: calc(100vh - 2.5rem);
+  }
+
+  .site-wrap {
+    display: flex;
+    gap: 0;
+  }
+
+  .site {
+    width: 745px;
+    flex-shrink: 0;
+    padding: 0 2rem 5rem;
+  }
+
+  .site-links {
+    width: 375px;
+    flex-shrink: 0;
+    padding: 0 1.2rem 5rem;
+    overflow-y: auto;
+  }
+
+
+  .links-item {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--hover);
+  }
+
+  .links-item:first-child {
+    border-top: 1px solid var(--hover);
+  }
+
+  .links-title {
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: var(--text);
+    text-decoration: none;
+    display: block;
+  }
+
+  .links-title:hover {
+    color: var(--hover);
+  }
+
+  .links-time {
+    font-size: 0.72rem;
+    color: var(--hover);
+    margin-top: 0.2rem;
+  }
+
+  .links-time a {
+    color: var(--hover);
+    text-decoration: none;
+  }
+
+  .links-time a:hover {
+    color: var(--text);
+  }
+
+  .links-comment {
+    font-size: 0.78rem;
+    color: var(--hover);
+    margin-top: 0.3rem;
+    line-height: 1.4;
+  }
+
+
+  .links-list-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--hover);
+  }
+
+  .links-list-title {
+    font-size: 1.1rem;
+    color: var(--text);
+    text-decoration: none;
+    display: block;
+    line-height: 1.4;
+  }
+
+  .links-list-title:hover {
+    color: var(--hover);
+  }
+
+  .links-list-time {
+    font-size: 0.82rem;
+    color: var(--hover);
+    margin-top: 0.2rem;
+  }
+
+  .links-list-time a {
+    color: var(--hover);
+    text-decoration: none;
+  }
+
+  .links-list-time a:hover {
+    color: var(--text);
+  }
+
+  .links-list-comment {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-top: 0.4rem;
+  }
+
+  .links-list-comment p {
+    margin: 0;
   }
 
   .site-header {
     position: sticky;
     top: 0;
     background: var(--bg);
-    padding: 1.5rem 0;
-    margin-bottom: 1.2rem;
+    padding: 1.5rem 2rem;
+    margin-bottom: 0;
     z-index: 10;
   }
 
@@ -186,10 +294,9 @@
     color: var(--text);
   }
 
-  .theme-toggle {
+  .theme-toggle, .links-toggle {
     position: fixed;
     bottom: 1rem;
-    right: 1rem;
     background: var(--text);
     color: var(--bg);
     border: none;
@@ -197,6 +304,22 @@
     font-family: Arial, Helvetica, sans-serif;
     font-size: 0.8rem;
     cursor: pointer;
+  }
+
+  .theme-toggle {
+    right: 1rem;
+  }
+
+  .links-toggle {
+    right: 5rem;
+  }
+
+  :root.hide-links .site-links {
+    display: none;
+  }
+
+  :root.hide-links .site-outer {
+    width: fit-content;
   }
 
   .brevis-item {
@@ -227,6 +350,10 @@
     margin: 0;
   }
 
+  @media (max-width: 1200px) {
+    .site-links { display: none; }
+  }
+
   @media (max-width: 600px) {
     .site { padding: 0 1.2rem 3rem; }
   }
@@ -234,16 +361,38 @@
 </head>
 <body>
 
-<div class="site">
-  {{ block "main" . }}{{ end }}
+<div class="site-outer">
+  <header class="site-header">
+    <p class="site-bio"><a href="{{ .Site.BaseURL }}">{{ .Site.Params.bio }}</a></p>
+    <nav class="site-nav">
+      <a href="{{ .Site.BaseURL }}">archive</a>
+      <a href="{{ .Site.BaseURL }}brevis/">brevis</a>
+      <a href="{{ .Site.BaseURL }}links/">links</a>
+      <a href="{{ .Site.BaseURL }}index.xml">rss</a>
+    </nav>
+  </header>
+  <div class="site-wrap">
+    <div class="site">
+      {{ block "main" . }}{{ end }}
+    </div>
+    {{ partial "links-sidebar.html" . }}
+  </div>
 </div>
 
 <button class="theme-toggle" onclick="toggleTheme()">light</button>
+<button class="links-toggle" onclick="toggleLinks()">links</button>
 
 <script>
   if (localStorage.getItem('theme') === 'light') {
     document.documentElement.classList.add('light');
     document.querySelector('.theme-toggle').textContent = 'dark';
+  }
+
+  if (localStorage.getItem('linksHidden') === 'true') {
+    document.documentElement.classList.add('hide-links');
+    document.querySelector('.links-toggle').textContent = 'links';
+  } else {
+    document.querySelector('.links-toggle').textContent = 'hide links';
   }
 
   function toggleTheme() {
@@ -253,6 +402,15 @@
     const isLight = root.classList.contains('light');
     btn.textContent = isLight ? 'dark' : 'light';
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  }
+
+  function toggleLinks() {
+    const root = document.documentElement;
+    const btn = document.querySelector('.links-toggle');
+    root.classList.toggle('hide-links');
+    const hidden = root.classList.contains('hide-links');
+    btn.textContent = hidden ? 'links' : 'hide links';
+    localStorage.setItem('linksHidden', hidden ? 'true' : 'false');
   }
 </script>
 

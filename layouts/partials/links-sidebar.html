@@ -1,0 +1,14 @@
+{{ $links := (where .Site.RegularPages "Section" "links").ByDate.Reverse }}
+{{ if $links }}
+<aside class="site-links">
+  {{ range $links }}
+  <div class="links-item">
+    <a class="links-title" href="{{ .Params.link }}" target="_blank" rel="noopener">{{ .Title }}</a>
+    <div class="links-time"><a href="{{ .Permalink }}">{{ .Date.Format "Jan 2, 2006" }}</a></div>
+    {{ if .Content }}
+    <div class="links-comment">{{ .Content | plainify | truncate 80 }}</div>
+    {{ end }}
+  </div>
+  {{ end }}
+</aside>
+{{ end }}

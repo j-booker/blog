@@ -1,0 +1,53 @@
+#!/bin/bash
+set -e
+
+BLOG_DIR="$HOME/blog"
+
+if [ -z "$1" ]; then
+    echo "Usage: links.blog https://example.com/article"
+    exit 1
+fi
+
+URL="$1"
+
+# Fetch the page title
+TITLE=$(curl -sL "$URL" | grep -ioP '(?<=<title>).*?(?=</title>)' | head -1 | sed 's/&amp;/\&/g; s/&lt;/</g; s/&gt;/>/g; s/&#39;/'"'"'/g; s/&quot;/"/g')
+
+if [ -z "$TITLE" ]; then
+    TITLE=$(curl -sL "$URL" | grep -i '<title' | head -1 | sed 's/.*<title[^>]*>//i; s/<\/title.*//i' | sed 's/^ *//; s/ *$//')
+fi
+
+if [ -z "$TITLE" ]; then
+    read -p "Could not fetch title (enter to use URL): " TITLE
+    if [ -z "$TITLE" ]; then
+        TITLE="$URL"
+    fi
+fi
+
+echo "Title: $TITLE"
+echo ""
+read -p "Comment (optional, press enter to skip): " COMMENT
+
+SLUG=$(date +"%Y%m%d-%H%M%S")
+DATETIME=$(date +"%Y-%m-%dT%H:%M:%S%z")
+FILE="content/links/${SLUG}.md"
+
+cd "$BLOG_DIR"
+
+cat > "$FILE" << EOF
+---
+title: "$TITLE"
+date: ${DATETIME}
+link: "${URL}"
+---
+${COMMENT}
+EOF
+
+hugo
+
+git add -A
+git commit -m "Link: ${TITLE:0:50}"
+git push
+
+echo ""
+echo "Posted: $TITLE"
