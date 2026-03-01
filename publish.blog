@@ -26,12 +26,12 @@ publish_file() {
     DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
 
     BODY=$(tail -n +2 "$SOURCE_FILE" | sed '/./,$!d')
-    SUMMARY=$(echo "$BODY" | sed 's/!\[\[[^]]*\]\]//g' | sed 's/!\[[^]]*\]([^)]*)//g' | tr '\n' ' ' | sed 's/  */ /g' | head -c 250 | sed 's/\(.\{150,\}\)\..*/\1./')
+    SUMMARY=$(printf '%s\n' "$BODY" | sed 's/!\[\[[^]]*\]\]//g' | sed 's/!\[[^]]*\]([^)]*)//g' | tr '\n' ' ' | sed 's/  */ /g' | head -c 250 | sed 's/\(.\{150,\}\)\..*/\1./')
 
     mkdir -p "$BLOG_DIR/static/images"
 
     # Handle Obsidian-style embeds: ![[image.ext]]
-    OBSIDIAN_IMAGES=$(echo "$BODY" | grep -oE '!\[\[[^]]+\.(png|jpg|jpeg|gif|webp|heic)\]\]' | sed 's/!\[\[//;s/\]\]//' || true)
+    OBSIDIAN_IMAGES=$(printf '%s\n' "$BODY" | grep -oE '!\[\[[^]]+\.(png|jpg|jpeg|gif|webp|heic)\]\]' | sed 's/!\[\[//;s/\]\]//' || true)
 
     for IMG in $OBSIDIAN_IMAGES; do
         IMG_BASENAME=$(basename "$IMG")
@@ -60,11 +60,11 @@ publish_file() {
             echo "Warning: Image not found: $IMG"
         fi
 
-        BODY=$(echo "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/images/$IMG_BASENAME)|g")
+        BODY=$(printf '%s\n' "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/images/$IMG_BASENAME)|g")
     done
 
     # Handle standard markdown images: ![alt](path)
-    STD_IMAGES=$(echo "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp|heic)\)' | sed 's/.*](\(.*\))/\1/' || true)
+    STD_IMAGES=$(printf '%s\n' "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp|heic)\)' | sed 's/.*](\(.*\))/\1/' || true)
 
     for IMG in $STD_IMAGES; do
         case "$IMG" in
@@ -95,7 +95,7 @@ publish_file() {
             IMG_BASENAME="$JPEG_NAME"
             echo "Converted to JPEG: $JPEG_NAME"
         fi
-        BODY=$(echo "$BODY" | sed "s|$IMG|/images/$IMG_BASENAME|g")
+        BODY=$(printf '%s\n' "$BODY" | sed "s|$IMG|/images/$IMG_BASENAME|g")
     done
 
     POST_PATH="$BLOG_DIR/content/posts/$SLUG.md"

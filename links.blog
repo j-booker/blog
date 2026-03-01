@@ -11,11 +11,7 @@ fi
 URL="$1"
 
 # Fetch the page title
-TITLE=$(curl -sL "$URL" | grep -ioP '(?<=<title>).*?(?=</title>)' | head -1 | sed 's/&amp;/\&/g; s/&lt;/</g; s/&gt;/>/g; s/&#39;/'"'"'/g; s/&quot;/"/g')
-
-if [ -z "$TITLE" ]; then
-    TITLE=$(curl -sL "$URL" | grep -i '<title' | head -1 | sed 's/.*<title[^>]*>//i; s/<\/title.*//i' | sed 's/^ *//; s/ *$//')
-fi
+TITLE=$(curl -sL "$URL" | perl -0777 -ne 'print $1 if /<title[^>]*>(.*?)<\/title>/si' | sed 's/&amp;/\&/g; s/&lt;/</g; s/&gt;/>/g; s/&#39;/'"'"'/g; s/&quot;/"/g' | sed 's/^ *//; s/ *$//')
 
 if [ -z "$TITLE" ]; then
     read -p "Could not fetch title (enter to use URL): " TITLE

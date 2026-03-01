@@ -11,7 +11,7 @@ MESSAGE="$*"
 SLUG=$(date +"%Y%m%d-%H%M%S")
 DATETIME=$(date +"%Y-%m-%dT%H:%M:%S%z")
 FILE="content/brevis/${SLUG}.md"
-BLOG_DIR="$(cd "$(dirname "$0")" && pwd)"
+BLOG_DIR="$HOME/blog"
 
 cd "$BLOG_DIR"
 
