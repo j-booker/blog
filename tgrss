@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Scrape public Telegram channels and write RSS feeds."""
+"""Scrape public Telegram channels and Nightwatch, write RSS feeds."""
 
 import re
 import sys
 import html
 import os
-from datetime import datetime
 from urllib.request import urlopen, Request
 
-CHANNELS = ["OSINTdefender", "Auroraintel"]
+CHANNELS = ["OSINTdefender"]
 OUT_DIR = os.path.expanduser("~/.config/newsboat/tgrss")
+UA = "Mozilla/5.0"
 
 
 def strip_html(s):
@@ -18,58 +18,25 @@ def strip_html(s):
     return html.unescape(s).strip()
 
 
-def fetch_channel(channel):
-    req = Request(
-        f"https://t.me/s/{channel}",
-        headers={"User-Agent": "Mozilla/5.0"},
-    )
+def fetch(url):
+    req = Request(url, headers={"User-Agent": UA})
     with urlopen(req, timeout=15) as resp:
         return resp.read().decode("utf-8", errors="replace")
 
 
-def parse_messages(page, channel):
-    posts = re.findall(r'data-post="([^"]+)"', page)
-    texts = re.findall(
-        r'class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', page, re.DOTALL
-    )
-    dates = re.findall(
-        r'class="tgme_widget_message_date"[^>]*>[^<]*<time[^>]*datetime="([^"]+)"',
-        page,
-        re.DOTALL,
-    )
-
-    items = []
-    for i in range(min(len(posts), len(texts), len(dates))):
-        post_id = posts[i].split("/")[-1]
-        link = f"https://t.me/{channel}/{post_id}"
-        body = texts[i]
-        title = strip_html(body)[:120]
-        if len(strip_html(body)) > 120:
-            title += "..."
-        items.append(
-            {
-                "title": title,
-                "link": link,
-                "date": dates[i],
-                "description": body,
-            }
-        )
-    return items
+def esc(s):
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
-def write_rss(channel, items, out_dir):
+def write_rss(name, title, link, description, items, out_dir):
     os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, f"{channel}.xml")
-
-    esc = lambda s: (
-        s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
-    )
+    path = os.path.join(out_dir, f"{name}.xml")
 
     rss = '<?xml version="1.0" encoding="utf-8"?>\n'
     rss += '<rss version="2.0">\n<channel>\n'
-    rss += f"  <title>{esc(channel)}</title>\n"
-    rss += f"  <link>https://t.me/s/{channel}</link>\n"
-    rss += f"  <description>Telegram: {esc(channel)}</description>\n"
+    rss += f"  <title>{esc(title)}</title>\n"
+    rss += f"  <link>{esc(link)}</link>\n"
+    rss += f"  <description>{esc(description)}</description>\n"
 
     for item in items:
         rss += "  <item>\n"
@@ -84,18 +51,96 @@ def write_rss(channel, items, out_dir):
 
     with open(path, "w") as f:
         f.write(rss)
-    print(f"  {channel}: {len(items)} items -> {path}")
+    print(f"  {name}: {len(items)} items -> {path}")
+
+
+# --- Telegram ---
+
+def scrape_telegram(channel):
+    page = fetch(f"https://t.me/s/{channel}")
+
+    posts = re.findall(r'data-post="([^"]+)"', page)
+    texts = re.findall(
+        r'class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', page, re.DOTALL
+    )
+    dates = re.findall(
+        r'class="tgme_widget_message_date"[^>]*>[^<]*<time[^>]*datetime="([^"]+)"',
+        page, re.DOTALL,
+    )
+
+    items = []
+    for i in range(min(len(posts), len(texts), len(dates))):
+        post_id = posts[i].split("/")[-1]
+        link = f"https://t.me/{channel}/{post_id}"
+        body = texts[i]
+        title = strip_html(body)[:120]
+        if len(strip_html(body)) > 120:
+            title += "..."
+        items.append({"title": title, "link": link, "date": dates[i], "description": body})
+
+    write_rss(channel, channel, f"https://t.me/s/{channel}", f"Telegram: {channel}", items, OUT_DIR)
+
+
+# --- Nightwatch ---
+
+def scrape_nightwatch():
+    page = fetch("https://nightwatch.services/daily_reports")
+
+    report_ids = re.findall(r'href="/daily_reports/(\d+)"', page)
+    # Deduplicate, preserve order
+    seen = set()
+    unique_ids = []
+    for rid in report_ids:
+        if rid not in seen:
+            seen.add(rid)
+            unique_ids.append(rid)
+
+    items = []
+    for rid in unique_ids[:5]:
+        try:
+            rpage = fetch(f"https://nightwatch.services/daily_reports/{rid}")
+
+            # Title from second h1 (the report headline)
+            h1s = re.findall(r'<h1[^>]*>(.*?)</h1>', rpage, re.DOTALL)
+            title = strip_html(h1s[1]) if len(h1s) > 1 else f"Daily Report #{rid}"
+
+            # Date
+            dates = re.findall(r'(\d{4}-\d{2}-\d{2})', rpage)
+            date = dates[0] + "T00:00:00+00:00" if dates else ""
+
+            # Content summary
+            prose = re.search(
+                r'class="prose prose-lg prose-invert max-w-none">(.*?)</div>\s*</div>',
+                rpage, re.DOTALL,
+            )
+            desc = strip_html(prose.group(1))[:500] if prose else ""
+
+            link = f"https://nightwatch.services/daily_reports/{rid}"
+            items.append({"title": title, "link": link, "date": date, "description": desc})
+        except Exception as e:
+            print(f"  nightwatch #{rid}: error — {e}", file=sys.stderr)
+
+    write_rss(
+        "nightwatch", "Nightwatch", "https://nightwatch.services",
+        "Military & Conflict Intelligence", items, OUT_DIR,
+    )
 
 
 def main():
-    channels = sys.argv[1:] if len(sys.argv) > 1 else CHANNELS
+    channels = CHANNELS
+    if len(sys.argv) > 1:
+        channels = sys.argv[1:]
+
     for ch in channels:
         try:
-            page = fetch_channel(ch)
-            items = parse_messages(page, ch)
-            write_rss(ch, items, OUT_DIR)
+            scrape_telegram(ch)
         except Exception as e:
             print(f"  {ch}: error — {e}", file=sys.stderr)
+
+    try:
+        scrape_nightwatch()
+    except Exception as e:
+        print(f"  nightwatch: error — {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":
