@@ -1,11 +1,12 @@
 #!/bin/bash
-# delete.blog — Remove posts or brevis from your blog
+# delete.blog — Remove posts, brevis, or links from your blog
 # Usage: delete.blog (then pick from a list, comma-separated)
 
 set -e
 BLOG_DIR="$HOME/blog"
 POSTS_DIR="$BLOG_DIR/content/posts"
 BREVIS_DIR="$BLOG_DIR/content/brevis"
+LINKS_DIR="$BLOG_DIR/content/links"
 
 FILES=()
 
@@ -21,6 +22,14 @@ for f in "$BREVIS_DIR"/*.md; do
     [ "$(basename "$f")" = "_index.md" ] && continue
     PREVIEW=$(grep -v '^---' "$f" | grep -v '^date:' | grep -v '^$' | head -1 | cut -c1-50)
     FILES+=("brevis  $(basename "$f")  $PREVIEW")
+done
+
+# Collect links (skip _index.md)
+for f in "$LINKS_DIR"/*.md; do
+    [ -f "$f" ] || continue
+    [ "$(basename "$f")" = "_index.md" ] && continue
+    TITLE=$(grep '^title:' "$f" | head -1 | sed 's/^title: *"//;s/"$//' | cut -c1-50)
+    FILES+=("link  $(basename "$f")  $TITLE")
 done
 
 if [ ${#FILES[@]} -eq 0 ]; then
@@ -60,6 +69,9 @@ for NUM in "${NUMS[@]}"; do
         echo "Deleted: $FILENAME"
     elif [ "$TYPE" = "brevis" ]; then
         rm "$BREVIS_DIR/$FILENAME"
+        echo "Deleted: $FILENAME"
+    elif [ "$TYPE" = "link" ]; then
+        rm "$LINKS_DIR/$FILENAME"
         echo "Deleted: $FILENAME"
     fi
 
