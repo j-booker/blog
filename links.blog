@@ -22,6 +22,11 @@ fi
 
 echo "Title: $TITLE"
 echo ""
+read -p "Edit title (or Ctrl-D to keep): " NEW_TITLE
+if [ -n "$NEW_TITLE" ]; then
+    TITLE="$NEW_TITLE"
+fi
+echo ""
 read -p "Comment (optional, press enter to skip): " COMMENT
 
 SLUG=$(date +"%Y%m%d-%H%M%S")
