@@ -278,6 +278,34 @@
     height: auto;
     margin: 1rem auto;
     display: block;
+    cursor: pointer;
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.2rem;
+    color: #fff;
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: Arial, Helvetica, sans-serif;
   }
 
   .post-body blockquote {
@@ -418,6 +446,16 @@
     btn.textContent = hidden ? 'links' : 'hide links';
     localStorage.setItem('linksHidden', hidden ? 'true' : 'false');
   }
+
+  document.addEventListener('click', function(e) {
+    if (e.target.matches('.post-body img')) {
+      var lb = document.createElement('div');
+      lb.className = 'lightbox';
+      lb.innerHTML = '<button class="lightbox-close">&times;</button><img src="' + e.target.src + '">';
+      lb.onclick = function() { lb.remove(); };
+      document.body.appendChild(lb);
+    }
+  });
 </script>
 
 </body>
