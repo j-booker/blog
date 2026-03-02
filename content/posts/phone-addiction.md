@@ -1,10 +1,13 @@
 ---
 title: "Phone Addiction"
 date: 2026-03-01T19:03:22-0600
-summary: "Static and active media encourage the opposite characteristics in their observer. Static media such as a book, which is just words on a page, requires an active mind in order to use."
+edited: 2026-03-02T09:20:24-0600
+summary: "Books are a perfect example of what I'll call static media. They're just words on a page, requiring active participation from the reader in order to use."
 ---
 
-Static and active media encourage the opposite characteristics in their observer. Static media such as a book, which is just words on a page, requires an active mind in order to use. Active media such as TikTok, which plays infinite short-form videos for you, tends to encourage a static mind. 
+Books are a perfect example of what I'll call static media. They're just words on a page, requiring active participation from the reader in order to use. On the opposite end of the spectrum is TikTok, which plays infinite short-form videos for you, with almost no participation required from the viewer but the flick of their thumb. I'd call TikTok active media, in that the media is literally playing an active role in its own use: it is playing a video for you and tacitly prompting you to scroll to the next one.
+
+Static and active media encourage the opposite characteristics in their user.
 
 Between an observer and the media they're paying attention to, whichever is more active is the subject, and whichever is less active is the object. If your mind has become totally static though TikTok use, you're the object, not the subject. TikTok is in control. If your mind has become more active through the requirements of long form reading, you're the subject. The book is serving you.
 
