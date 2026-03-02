@@ -213,7 +213,7 @@
     width: 148px;
     height: 148px;
     align-self: center;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 4px;
     flex-shrink: 0;
   }
@@ -447,6 +447,19 @@
     btn.textContent = hidden ? 'links' : 'hide links';
     localStorage.setItem('linksHidden', hidden ? 'true' : 'false');
   }
+
+  document.querySelectorAll('.post-thumb').forEach(function(img) {
+    function setBg() {
+      var c = document.createElement('canvas');
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
+      var ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      var d = ctx.getImageData(0, 0, 1, 1).data;
+      img.style.backgroundColor = 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')';
+    }
+    if (img.complete) setBg(); else img.onload = setBg;
+  });
 
   document.addEventListener('click', function(e) {
     if (e.target.matches('.post-body img')) {
