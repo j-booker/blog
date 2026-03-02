@@ -1,0 +1,226 @@
+#!/bin/bash
+set -e
+
+BLOG_DIR="$HOME/blog"
+WORDS_DIR="$HOME/Desktop/Words"
+POSTS_DIR="$BLOG_DIR/content/posts"
+
+cd "$BLOG_DIR"
+
+# Step 1: Pick a post to edit
+echo ""
+echo "  Which post to edit?"
+echo ""
+
+POSTS=()
+for f in "$POSTS_DIR"/*.md; do
+    [ -f "$f" ] || continue
+    POSTS+=("$f")
+done
+
+if [ ${#POSTS[@]} -eq 0 ]; then
+    echo "  No posts found."
+    exit 0
+fi
+
+for i in "${!POSTS[@]}"; do
+    POST_TITLE=$(grep '^title:' "${POSTS[$i]}" | head -1 | sed 's/^title: *"//;s/"$//')
+    echo "  $((i+1)). $POST_TITLE"
+done
+
+echo ""
+read -p "Pick (q to quit): " POST_NUM
+
+if [ "$POST_NUM" = "q" ]; then
+    echo "Cancelled."
+    exit 0
+fi
+
+if ! [[ "$POST_NUM" =~ ^[0-9]+$ ]] || [ "$POST_NUM" -lt 1 ] || [ "$POST_NUM" -gt ${#POSTS[@]} ]; then
+    echo "Invalid selection."
+    exit 1
+fi
+
+POST_FILE="${POSTS[$((POST_NUM-1))]}"
+POST_TITLE=$(grep '^title:' "$POST_FILE" | head -1 | sed 's/^title: *"//;s/"$//')
+ORIG_DATE=$(grep '^date:' "$POST_FILE" | head -1 | sed 's/^date: *//')
+ORIG_SUMMARY=$(grep '^summary:' "$POST_FILE" | head -1 | sed 's/^summary: *"//;s/"$//')
+
+echo ""
+echo "  Editing: $POST_TITLE"
+echo "  File: $(basename "$POST_FILE")"
+
+# Step 2: Browse Words folder for replacement file
+echo ""
+echo "  Pick replacement from Words:"
+
+CURRENT="$WORDS_DIR"
+SOURCE_FILE=""
+
+while true; do
+    echo ""
+    echo "  $CURRENT"
+    echo ""
+
+    ITEMS=()
+    if [ "$CURRENT" != "$WORDS_DIR" ]; then
+        ITEMS+=("back")
+    fi
+
+    for f in "$CURRENT"/*/; do
+        [ -d "$f" ] || continue
+        ITEMS+=("$(basename "$f")/")
+    done
+    for f in "$CURRENT"/*.md; do
+        [ -f "$f" ] || continue
+        ITEMS+=("$(basename "$f")")
+    done
+
+    if [ ${#ITEMS[@]} -eq 0 ]; then
+        echo "  No folders or .md files here."
+        exit 0
+    fi
+
+    for i in "${!ITEMS[@]}"; do
+        echo "  $((i+1)). ${ITEMS[$i]}"
+    done
+
+    echo ""
+    read -p "Pick (q to quit): " INPUT
+
+    if [ "$INPUT" = "q" ]; then
+        echo "Cancelled."
+        exit 0
+    fi
+
+    if ! [[ "$INPUT" =~ ^[0-9]+$ ]] || [ "$INPUT" -lt 1 ] || [ "$INPUT" -gt ${#ITEMS[@]} ]; then
+        echo "Invalid: $INPUT"
+        continue
+    fi
+
+    PICK="${ITEMS[$((INPUT-1))]}"
+
+    if [ "$PICK" = "back" ]; then
+        CURRENT="$(dirname "$CURRENT")"
+    elif [[ "$PICK" == */ ]]; then
+        CURRENT="$CURRENT/${PICK%/}"
+    else
+        SOURCE_FILE="$CURRENT/$PICK"
+        break
+    fi
+done
+
+SOURCE_DIR="$(dirname "$SOURCE_FILE")"
+
+# Step 3: Extract new content
+NEW_TITLE=$(head -n 1 "$SOURCE_FILE" | sed 's/^#* *//')
+BODY=$(tail -n +2 "$SOURCE_FILE" | sed '/./,$!d')
+SUMMARY=$(printf '%s\n' "$BODY" | sed 's/!\[\[[^]]*\]\]//g' | sed 's/!\[[^]]*\]([^)]*)//g' | tr '\n' ' ' | sed 's/  */ /g' | head -c 250 | sed 's/\(.\{150,\}\)\..*/\1./')
+
+EDITED_DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
+
+mkdir -p "$BLOG_DIR/static/images"
+
+# Handle Obsidian-style embeds: ![[image.ext]]
+OBSIDIAN_IMAGES=$(printf '%s\n' "$BODY" | grep -oE '!\[\[[^]]+\.(png|jpg|jpeg|gif|webp|heic)\]\]' | sed 's/!\[\[//;s/\]\]//' || true)
+
+for IMG in $OBSIDIAN_IMAGES; do
+    IMG_BASENAME=$(basename "$IMG")
+    FOUND=0
+
+    FOUND_IMG=$(find "$WORDS_DIR" -name "$IMG_BASENAME" -print -quit 2>/dev/null)
+    if [ -n "$FOUND_IMG" ]; then
+        cp "$FOUND_IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+        FOUND=1
+        echo "Copied image: $IMG_BASENAME"
+    elif [ -f "$SOURCE_DIR/$IMG" ]; then
+        cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+        FOUND=1
+        echo "Copied image: $IMG_BASENAME"
+    fi
+
+    if [[ "$IMG_BASENAME" =~ \.[Hh][Ee][Ii][Cc]$ ]] && [ "$FOUND" -eq 1 ]; then
+        JPEG_NAME="${IMG_BASENAME%.*}.jpeg"
+        sips -s format jpeg "$BLOG_DIR/static/images/$IMG_BASENAME" --out "$BLOG_DIR/static/images/$JPEG_NAME" >/dev/null 2>&1
+        rm "$BLOG_DIR/static/images/$IMG_BASENAME"
+        IMG_BASENAME="$JPEG_NAME"
+        echo "Converted to JPEG: $JPEG_NAME"
+    fi
+
+    if [ "$FOUND" -eq 0 ]; then
+        echo "Warning: Image not found: $IMG"
+    fi
+
+    BODY=$(printf '%s\n' "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/images/$IMG_BASENAME)|g")
+done
+
+# Handle standard markdown images: ![alt](path)
+STD_IMAGES=$(printf '%s\n' "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp|heic)\)' | sed 's/.*](\(.*\))/\1/' || true)
+
+for IMG in $STD_IMAGES; do
+    case "$IMG" in
+        http://*|https://*|/images/*) continue ;;
+    esac
+    IMG_BASENAME=$(basename "$IMG")
+    FOUND_IMG=$(find "$WORDS_DIR" -name "$IMG_BASENAME" -print -quit 2>/dev/null)
+    FOUND_STD=0
+    if [ -n "$FOUND_IMG" ]; then
+        cp "$FOUND_IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+        FOUND_STD=1
+        echo "Copied image: $IMG_BASENAME"
+    elif [ -f "$SOURCE_DIR/$IMG" ]; then
+        cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+        FOUND_STD=1
+        echo "Copied image: $IMG_BASENAME"
+    elif [ -f "$IMG" ]; then
+        cp "$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+        FOUND_STD=1
+        echo "Copied image: $IMG_BASENAME"
+    else
+        echo "Warning: Image not found: $IMG"
+    fi
+    if [[ "$IMG_BASENAME" =~ \.[Hh][Ee][Ii][Cc]$ ]] && [ "$FOUND_STD" -eq 1 ]; then
+        JPEG_NAME="${IMG_BASENAME%.*}.jpeg"
+        sips -s format jpeg "$BLOG_DIR/static/images/$IMG_BASENAME" --out "$BLOG_DIR/static/images/$JPEG_NAME" >/dev/null 2>&1
+        rm "$BLOG_DIR/static/images/$IMG_BASENAME"
+        IMG_BASENAME="$JPEG_NAME"
+        echo "Converted to JPEG: $JPEG_NAME"
+    fi
+    BODY=$(printf '%s\n' "$BODY" | sed "s|$IMG|/images/$IMG_BASENAME|g")
+done
+
+# Step 4: Write updated post, preserving original date
+cat > "$POST_FILE" << FRONTMATTER
+---
+title: "$NEW_TITLE"
+date: $ORIG_DATE
+edited: $EDITED_DATE
+summary: "$SUMMARY"
+---
+
+$BODY
+FRONTMATTER
+
+echo ""
+echo "  Updated: $POST_FILE"
+
+# Step 5: Strip image metadata, build, commit, push
+python3 -c "
+from PIL import Image; import glob, os
+for f in glob.glob('static/images/*'):
+    try:
+        img = Image.open(f)
+        clean = Image.new(img.mode, img.size)
+        clean.putdata(list(img.getdata()))
+        clean.save(f)
+    except: pass
+"
+
+hugo
+
+git add -A
+git commit -m "Edit: $NEW_TITLE"
+git push
+
+echo ""
+echo "  Published edit: $NEW_TITLE"
