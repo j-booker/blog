@@ -198,6 +198,19 @@ else
 fi
 
 cd "$BLOG_DIR"
+
+# Strip metadata (GPS, camera info) from all images
+python3 -c "
+from PIL import Image; import glob, os
+for f in glob.glob('static/images/*'):
+    try:
+        img = Image.open(f)
+        clean = Image.new(img.mode, img.size)
+        clean.putdata(list(img.getdata()))
+        clean.save(f)
+    except: pass
+"
+
 hugo
 
 git add -A
