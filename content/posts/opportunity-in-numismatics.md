@@ -1,6 +1,7 @@
 ---
 title: "Opportunity in Numismatics"
 date: 2026-03-19T13:25:39-0500
+edited: 2026-03-19T13:29:52-0500
 summary: "Since private gold ownership was made illegal by FDR in 1933, collectible (numismatic) coins have been worth more than their melt value. Their premium was significant in the last 70's, being worth 2-3x the value of the gold they were made of."
 ---
 
@@ -8,7 +9,7 @@ Since private gold ownership was made illegal by FDR in 1933, collectible (numis
 
 The pattern is consistent: when the gold market is stable, numismatic coins command a premium. When gold is in a bull market, the premiums compress almost to zero because people are so avidly after the metal rather than the coin. Then, when the market normalizes, the premium re-appears.
 
-Right now the premium is at historic lows (I could only find a chart that goes back to the mid 90's, but the premium was much higher before that):
+Right now the premium is at historic lows (chart shows '97-'26 but it was much higher before that):
 ![Screenshot-2026-03-19-at-1.02.06-PM.png](/images/Screenshot-2026-03-19-at-1.02.06-PM.png)
 In fact, according to most physical gold dealers, they sell pre-1933 numismatic gold coins for the same or even less than they sell new minted coins.
 
