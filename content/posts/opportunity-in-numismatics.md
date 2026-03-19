@@ -1,7 +1,7 @@
 ---
 title: "Opportunity in Numismatics"
 date: 2026-03-19T13:25:39-0500
-edited: 2026-03-19T13:29:52-0500
+edited: 2026-03-19T14:23:55-0500
 summary: "Since private gold ownership was made illegal by FDR in 1933, collectible (numismatic) coins have been worth more than their melt value. Their premium was significant in the last 70's, being worth 2-3x the value of the gold they were made of."
 ---
 
@@ -23,4 +23,4 @@ Since no one wants to buy pre-1933 gold, dealers often find it cheaper to simply
 
 **So not only are numismatic coins being sold for zero premium, they're actually becoming more scarce at the same time.**
 
-The catch is that this is a high timeframe market. That premium on numismatic gold will probably come, but it could be a decade or two. Personally, I think it's likely to arrive in a reasonable amount of time. I feel confident that in a highly financialized world where speculation increasingly pays individuals more than their labor, people be eager to find a way they can speculate on gold. It could be a couple years before the gold market normalizes, but I think strong new premiums should open up in these coins when it does. These premiums have been compressing for decades, and the existing collectors market is probably profoundly depressed. I would be if I'd been buying these coins, filled with hope, for 25 years, only to see the premium on them disappear entirely.
+The catch is that this is a high timeframe market. That premium on numismatic gold will probably come, but it could be a decade or two. Personally, I think it's likely to arrive in a reasonable amount of time. I feel confident that in a highly financialized world where speculation increasingly pays individuals more than their labor, people will be eager to find a way they can speculate on gold. It could be a couple years before the gold market normalizes, but I think strong new premiums should open up in these coins when it does. These premiums have been compressing for decades, and the existing collectors market is probably profoundly depressed. I would be if I'd been buying these coins for 25 years, filled with hope, only to see the premium on them disappear entirely.
