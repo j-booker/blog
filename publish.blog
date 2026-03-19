@@ -36,24 +36,25 @@ publish_file() {
     while IFS= read -r IMG; do
         [ -z "$IMG" ] && continue
         IMG_BASENAME=$(basename "$IMG")
+        SAFE_NAME=$(echo "$IMG_BASENAME" | tr ' ' '-')
         FOUND=0
 
         FOUND_IMG=$(find "$WORDS_DIR" -name "$IMG_BASENAME" -print -quit 2>/dev/null)
         if [ -n "$FOUND_IMG" ]; then
-            cp "$FOUND_IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+            cp "$FOUND_IMG" "$BLOG_DIR/static/images/$SAFE_NAME"
             FOUND=1
-            echo "Copied image: $IMG_BASENAME"
+            echo "Copied image: $SAFE_NAME"
         elif [ -f "$SOURCE_DIR/$IMG" ]; then
-            cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+            cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$SAFE_NAME"
             FOUND=1
-            echo "Copied image: $IMG_BASENAME"
+            echo "Copied image: $SAFE_NAME"
         fi
 
-        if [[ "$IMG_BASENAME" =~ \.[Hh][Ee][Ii][Cc]$ ]] && [ "$FOUND" -eq 1 ]; then
-            JPEG_NAME="${IMG_BASENAME%.*}.jpeg"
-            sips -s format jpeg "$BLOG_DIR/static/images/$IMG_BASENAME" --out "$BLOG_DIR/static/images/$JPEG_NAME" >/dev/null 2>&1
-            rm "$BLOG_DIR/static/images/$IMG_BASENAME"
-            IMG_BASENAME="$JPEG_NAME"
+        if [[ "$SAFE_NAME" =~ \.[Hh][Ee][Ii][Cc]$ ]] && [ "$FOUND" -eq 1 ]; then
+            JPEG_NAME="${SAFE_NAME%.*}.jpeg"
+            sips -s format jpeg "$BLOG_DIR/static/images/$SAFE_NAME" --out "$BLOG_DIR/static/images/$JPEG_NAME" >/dev/null 2>&1
+            rm "$BLOG_DIR/static/images/$SAFE_NAME"
+            SAFE_NAME="$JPEG_NAME"
             echo "Converted to JPEG: $JPEG_NAME"
         fi
 
@@ -61,7 +62,7 @@ publish_file() {
             echo "Warning: Image not found: $IMG"
         fi
 
-        BODY=$(printf '%s\n' "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/images/$IMG_BASENAME)|g")
+        BODY=$(printf '%s\n' "$BODY" | sed "s|!\[\[$IMG\]\]|![$SAFE_NAME](/images/$SAFE_NAME)|g")
     done <<< "$OBSIDIAN_IMAGES"
 
     # Handle standard markdown images: ![alt](path)
@@ -73,31 +74,32 @@ publish_file() {
             http://*|https://*|/images/*) continue ;;
         esac
         IMG_BASENAME=$(basename "$IMG")
+        SAFE_NAME=$(echo "$IMG_BASENAME" | tr ' ' '-')
         FOUND_IMG=$(find "$WORDS_DIR" -name "$IMG_BASENAME" -print -quit 2>/dev/null)
         FOUND_STD=0
         if [ -n "$FOUND_IMG" ]; then
-            cp "$FOUND_IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+            cp "$FOUND_IMG" "$BLOG_DIR/static/images/$SAFE_NAME"
             FOUND_STD=1
-            echo "Copied image: $IMG_BASENAME"
+            echo "Copied image: $SAFE_NAME"
         elif [ -f "$SOURCE_DIR/$IMG" ]; then
-            cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+            cp "$SOURCE_DIR/$IMG" "$BLOG_DIR/static/images/$SAFE_NAME"
             FOUND_STD=1
-            echo "Copied image: $IMG_BASENAME"
+            echo "Copied image: $SAFE_NAME"
         elif [ -f "$IMG" ]; then
-            cp "$IMG" "$BLOG_DIR/static/images/$IMG_BASENAME"
+            cp "$IMG" "$BLOG_DIR/static/images/$SAFE_NAME"
             FOUND_STD=1
-            echo "Copied image: $IMG_BASENAME"
+            echo "Copied image: $SAFE_NAME"
         else
             echo "Warning: Image not found: $IMG"
         fi
-        if [[ "$IMG_BASENAME" =~ \.[Hh][Ee][Ii][Cc]$ ]] && [ "$FOUND_STD" -eq 1 ]; then
-            JPEG_NAME="${IMG_BASENAME%.*}.jpeg"
-            sips -s format jpeg "$BLOG_DIR/static/images/$IMG_BASENAME" --out "$BLOG_DIR/static/images/$JPEG_NAME" >/dev/null 2>&1
-            rm "$BLOG_DIR/static/images/$IMG_BASENAME"
-            IMG_BASENAME="$JPEG_NAME"
+        if [[ "$SAFE_NAME" =~ \.[Hh][Ee][Ii][Cc]$ ]] && [ "$FOUND_STD" -eq 1 ]; then
+            JPEG_NAME="${SAFE_NAME%.*}.jpeg"
+            sips -s format jpeg "$BLOG_DIR/static/images/$SAFE_NAME" --out "$BLOG_DIR/static/images/$JPEG_NAME" >/dev/null 2>&1
+            rm "$BLOG_DIR/static/images/$SAFE_NAME"
+            SAFE_NAME="$JPEG_NAME"
             echo "Converted to JPEG: $JPEG_NAME"
         fi
-        BODY=$(printf '%s\n' "$BODY" | sed "s|$IMG|/images/$IMG_BASENAME|g")
+        BODY=$(printf '%s\n' "$BODY" | sed "s|$IMG|/images/$SAFE_NAME|g")
     done <<< "$STD_IMAGES"
 
     POST_PATH="$BLOG_DIR/content/posts/$SLUG.md"
