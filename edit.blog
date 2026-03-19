@@ -124,7 +124,8 @@ mkdir -p "$BLOG_DIR/static/images"
 # Handle Obsidian-style embeds: ![[image.ext]]
 OBSIDIAN_IMAGES=$(printf '%s\n' "$BODY" | grep -oE '!\[\[[^]]+\.(png|jpg|jpeg|gif|webp|heic)\]\]' | sed 's/!\[\[//;s/\]\]//' || true)
 
-for IMG in $OBSIDIAN_IMAGES; do
+while IFS= read -r IMG; do
+    [ -z "$IMG" ] && continue
     IMG_BASENAME=$(basename "$IMG")
     FOUND=0
 
@@ -152,12 +153,13 @@ for IMG in $OBSIDIAN_IMAGES; do
     fi
 
     BODY=$(printf '%s\n' "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/images/$IMG_BASENAME)|g")
-done
+done <<< "$OBSIDIAN_IMAGES"
 
 # Handle standard markdown images: ![alt](path)
 STD_IMAGES=$(printf '%s\n' "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp|heic)\)' | sed 's/.*](\(.*\))/\1/' || true)
 
-for IMG in $STD_IMAGES; do
+while IFS= read -r IMG; do
+    [ -z "$IMG" ] && continue
     case "$IMG" in
         http://*|https://*|/images/*) continue ;;
     esac
@@ -187,7 +189,7 @@ for IMG in $STD_IMAGES; do
         echo "Converted to JPEG: $JPEG_NAME"
     fi
     BODY=$(printf '%s\n' "$BODY" | sed "s|$IMG|/images/$IMG_BASENAME|g")
-done
+done <<< "$STD_IMAGES"
 
 # Step 4: Write updated post, preserving original date
 cat > "$POST_FILE" << FRONTMATTER

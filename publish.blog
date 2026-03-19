@@ -33,7 +33,8 @@ publish_file() {
     # Handle Obsidian-style embeds: ![[image.ext]]
     OBSIDIAN_IMAGES=$(printf '%s\n' "$BODY" | grep -oE '!\[\[[^]]+\.(png|jpg|jpeg|gif|webp|heic)\]\]' | sed 's/!\[\[//;s/\]\]//' || true)
 
-    for IMG in $OBSIDIAN_IMAGES; do
+    while IFS= read -r IMG; do
+        [ -z "$IMG" ] && continue
         IMG_BASENAME=$(basename "$IMG")
         FOUND=0
 
@@ -61,12 +62,13 @@ publish_file() {
         fi
 
         BODY=$(printf '%s\n' "$BODY" | sed "s|!\[\[$IMG\]\]|![$IMG_BASENAME](/images/$IMG_BASENAME)|g")
-    done
+    done <<< "$OBSIDIAN_IMAGES"
 
     # Handle standard markdown images: ![alt](path)
     STD_IMAGES=$(printf '%s\n' "$BODY" | grep -oE '!\[[^]]*\]\([^)]+\.(png|jpg|jpeg|gif|webp|heic)\)' | sed 's/.*](\(.*\))/\1/' || true)
 
-    for IMG in $STD_IMAGES; do
+    while IFS= read -r IMG; do
+        [ -z "$IMG" ] && continue
         case "$IMG" in
             http://*|https://*|/images/*) continue ;;
         esac
@@ -96,7 +98,7 @@ publish_file() {
             echo "Converted to JPEG: $JPEG_NAME"
         fi
         BODY=$(printf '%s\n' "$BODY" | sed "s|$IMG|/images/$IMG_BASENAME|g")
-    done
+    done <<< "$STD_IMAGES"
 
     POST_PATH="$BLOG_DIR/content/posts/$SLUG.md"
 
