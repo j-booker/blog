@@ -15,12 +15,12 @@ BLOG_DIR="$HOME/blog"
 
 cd "$BLOG_DIR"
 
-cat > "$FILE" << EOF
+cat > "$FILE" <<EOF
 ---
 date: ${DATETIME}
 ---
-${MESSAGE}
 EOF
+echo "$MESSAGE" >> "$FILE"
 
 hugo
 
