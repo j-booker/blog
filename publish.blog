@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-BLOG_DIR="$HOME/blog"
-WORDS_DIR="$HOME/Desktop/Words"
+BLOG_DIR="$HOME/Desktop/Projects/blog"
+WORDS_DIR="$HOME/Desktop/words/Blog"
 
 publish_file() {
     local SOURCE_FILE="$1"

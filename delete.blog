@@ -3,7 +3,7 @@
 # Usage: delete.blog (then pick from a list, comma-separated)
 
 set -e
-BLOG_DIR="$HOME/blog"
+BLOG_DIR="$HOME/Desktop/Projects/blog"
 POSTS_DIR="$BLOG_DIR/content/posts"
 BREVIS_DIR="$BLOG_DIR/content/brevis"
 LINKS_DIR="$BLOG_DIR/content/links"

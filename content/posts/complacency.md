@@ -1,10 +1,11 @@
 ---
 title: "Complacency"
 date: 2026-03-19T12:46:26-0500
-edited: 2026-03-20T22:39:51-0500
-summary: "SPY's on balance volume is back to the 2021 high. The price during that 2021 high was $480. The price now is $657. Despite on balance volume fully retracing, the price is still nearly 40% higher. Major divergence."
+edited: 2026-03-30T08:22:12-0500
+summary: " SPY's on balance volume is back to the 2021 high. The price during that 2021 high was $480. The price now is $657. Despite on balance volume fully retracing, the price is still nearly 40% higher. Major divergence."
 ---
 
+![Screenshot-2026-03-26-at-3.26.35-PM.png](/images/Screenshot-2026-03-26-at-3.26.35-PM.png)
 SPY's on balance volume is back to the 2021 high. The price during that 2021 high was $480. The price now is $657. Despite on balance volume fully retracing, the price is still nearly 40% higher. Major divergence. 
 ![Pasted-image-20260319124128.png](/images/Pasted-image-20260319124128.png)
 Darden Restaurants Inc (DRI) is even worse. OBV made a high in 2021 and has not been able to break it since, despite price rising 40% to a new ATH. A major bearish divergence:
