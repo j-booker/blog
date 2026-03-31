@@ -26,7 +26,7 @@ publish_file() {
     DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
 
     BODY=$(tail -n +2 "$SOURCE_FILE" | sed '/./,$!d')
-    SUMMARY=$(printf '%s\n' "$BODY" | sed 's/!\[\[[^]]*\]\]//g' | sed 's/!\[[^]]*\]([^)]*)//g' | tr '\n' ' ' | sed 's/  */ /g' | head -c 250 | sed 's/\(.\{150,\}\)\..*/\1./')
+    SUMMARY=$(printf '%s\n' "$BODY" | sed 's/!\[\[[^]]*\]\]//g' | sed 's/!\[[^]]*\]([^)]*)//g' | sed 's/\[\([^]]*\)\]([^)]*)/ \1/g' | tr '\n' ' ' | sed 's/  */ /g' | head -c 250 | sed 's/\(.\{150,\}\)\..*/\1./')
 
     mkdir -p "$BLOG_DIR/static/images"
 
