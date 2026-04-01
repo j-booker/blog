@@ -104,11 +104,14 @@ publish_file() {
 
     POST_PATH="$BLOG_DIR/content/posts/$SLUG.md"
 
+    SAFE_TITLE=$(echo "$TITLE" | sed 's/"/\\"/g')
+    SAFE_SUMMARY=$(echo "$SUMMARY" | sed 's/"/\\"/g')
+
     cat > "$POST_PATH" << FRONTMATTER
 ---
-title: "$TITLE"
+title: "$SAFE_TITLE"
 date: $DATE
-summary: "$SUMMARY"
+summary: "$SAFE_SUMMARY"
 ---
 
 $BODY
